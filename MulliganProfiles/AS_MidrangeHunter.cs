@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SmartBot.Database;
+using SmartBot.Mulligan;
+using SmartBot.Plugins.API;
 using SmartBotUI;
 using SmartBotUI.Settings;
 
@@ -19,7 +22,7 @@ namespace SmartBotUI.Mulligan
     [Serializable]
     public class bMulliganProfile : MulliganProfile
     {
-         #region Data
+        #region Data
         /*==================Custom Behavior Logic==================
          *                                                        *
          *  Warning: custom behavior doesn't apply to all classes *
@@ -35,8 +38,8 @@ namespace SmartBotUI.Mulligan
          *========================================================*/
 
         private const bool SnakeJuggler = true; //Keeps snake trap if you have a knife juggler in the opener and coin.
-                                                //Coin snake trap => Knife juggler
-        private const bool AdvancedFreezingTrap = true; 
+        //Coin snake trap => Knife juggler
+        private const bool AdvancedFreezingTrap = true;
 
 
 
@@ -63,7 +66,7 @@ namespace SmartBotUI.Mulligan
         private const string KillCommand = "EX1_539";
         private const string KingsElekk = "AT_058";
         private const string KnifeJuggler = "NEW1_019";
-        private const string LanceCarrier = "AT_084"; 
+        private const string LanceCarrier = "AT_084";
         private const string LepperGnome = "EX1_029";
         private const string Loatheb = "FP1_030";
         private const string MadScientist = "FP1_004";
@@ -81,7 +84,7 @@ namespace SmartBotUI.Mulligan
 
         private readonly Dictionary<string, bool> _whiteList; // CardName, KeepDouble
         private readonly Dictionary<string, int> _weaponList;
-        private readonly List<Card> _cardsToKeep;
+        private readonly List<Card.Cards> _cardsToKeep;
 
 
         public bMulliganProfile()
@@ -89,10 +92,10 @@ namespace SmartBotUI.Mulligan
         {
             _whiteList = new Dictionary<string, bool>();
             _weaponList = new Dictionary<string, int>();
-            _cardsToKeep = new List<Card>();
+            _cardsToKeep = new List<Card.Cards>();
         }
 
-        public void ChoseWeapon(List<Card> choices, int gz = 1, int eb = 2) //v2.0
+        public void ChoseWeapon(List<Card.Cards> choices, int gz = 1, int eb = 2) //v2.0
         {
             _weaponList.AddOrUpdate(Glavezooka, gz);
             _weaponList.AddOrUpdate(EaglehornBow, eb);
@@ -106,7 +109,7 @@ namespace SmartBotUI.Mulligan
             while (true)
             {
 
-                if (choices.Any(c => c.Name == _weaponList.FirstOrDefault(x => x.Value == i).Key))
+                if (choices.Any(c => c.ToString() == _weaponList.FirstOrDefault(x => x.Value == i).Key))
                 {
                     _whiteList.AddOrUpdate(_weaponList.FirstOrDefault(x => x.Value == i).Key, false);
                     break;
@@ -118,12 +121,12 @@ namespace SmartBotUI.Mulligan
         }
 
 
-        public override List<Card> HandleMulligan(List<Card> choices, CClass opponentClass, CClass ownClass)
+        public List<Card.Cards> HandleMulligan(List<Card.Cards> choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
-            var hasCoin = choices.Count > 3;
-            var has2Drop = choices.Any(c => c.Name == HauntedCreeper) || choices.Any(c => c.Name == MadScientist) || choices.Any(c => c.Name == KnifeJuggler);// Kings Elek is not a legitimate 2 drop in my eyes
-            var allowHunterMark = (choices.Any(c => c.Name == Webspinner) || (choices.Any(c => c.Name == HauntedCreeper)));
-            var hasMadScientist = choices.Any(c => c.Name == MadScientist);
+          var hasCoin = choices.Count > 3;
+            var has2Drop = choices.Any(c => c.ToString() == HauntedCreeper) || choices.Any(c => c.ToString() == MadScientist) || choices.Any(c => c.ToString() == KnifeJuggler);// Kings Elek is not a legitimate 2 drop in my eyes
+            var allowHunterMark = (choices.Any(c => c.ToString() == Webspinner) || (choices.Any(c => c.ToString() == HauntedCreeper)));
+            var hasMadScientist = choices.Any(c => c.ToString() == MadScientist);
             var perfectCurve = false;
             var badCurve = false;
 
@@ -143,16 +146,16 @@ namespace SmartBotUI.Mulligan
             _whiteList.AddOrUpdate(WorgenInfiltrator, false);
             _whiteList.AddOrUpdate(ArgentSquire, false);
             _whiteList.AddOrUpdate(LanceCarrier, false);
-
+             
             _whiteList.AddOrUpdate(!has2Drop ? KingsElekk : ArgentHorserider, false);
 
             // ReSharper disable once RedundantLogicalConditionalExpressionOperand
-            if (choices.Any(c => c.Name == KnifeJuggler) && SnakeJuggler && hasCoin)
+            if (choices.Any(c => c.ToString() == KnifeJuggler) && SnakeJuggler && hasCoin)
                 _whiteList.AddOrUpdate(SnakeTrap, false);
 
             switch (opponentClass)
             {
-                case CClass.DRUID:
+                case Card.CClass.DRUID:
                     {
                         if (allowHunterMark)
                             _whiteList.AddOrUpdate(HunterMark, false);
@@ -169,7 +172,7 @@ namespace SmartBotUI.Mulligan
 
                         break;
                     }
-                case CClass.HUNTER:
+                case Card.CClass.HUNTER:
                     {
                         if (has2Drop)
                         {
@@ -183,7 +186,7 @@ namespace SmartBotUI.Mulligan
                         _whiteList.AddOrUpdate(UnleashTheSkill, false);
                         break;
                     }
-                case CClass.MAGE:
+                case Card.CClass.MAGE:
                     {
 
                         if (has2Drop)
@@ -202,7 +205,7 @@ namespace SmartBotUI.Mulligan
                         _whiteList.AddOrUpdate(BearTrap, false);//It is a justifiable secret against tempo mages
                         break;
                     }
-                case CClass.PALADIN:
+                case Card.CClass.PALADIN:
                     {
                         if (has2Drop)
                         {
@@ -218,7 +221,7 @@ namespace SmartBotUI.Mulligan
 
                         break;
                     }
-                case CClass.PRIEST:
+                case Card.CClass.PRIEST:
                     {
                         _whiteList.AddOrUpdate(KingsElekk, false);
                         if (hasMadScientist)
@@ -235,7 +238,7 @@ namespace SmartBotUI.Mulligan
 
                         break;
                     }
-                case CClass.ROGUE:
+                case Card.CClass.ROGUE:
                     {
                         if (has2Drop && hasMadScientist)
                             ChoseWeapon(choices, 2, 1);
@@ -246,16 +249,16 @@ namespace SmartBotUI.Mulligan
                             _whiteList.AddOrUpdate(AnimalCompanion, false);
                         break;
                     }
-                case CClass.SHAMAN:
+                case Card.CClass.SHAMAN:
                     {
                         if (allowHunterMark)
                             _whiteList.AddOrUpdate(HunterMark, false);
                         ChoseWeapon(choices);
-                        if (has2Drop && choices.Any(c => c.Name != Glavezooka))
+                        if (has2Drop && choices.Any(c => c.ToString() != Glavezooka))
                             _whiteList.AddOrUpdate(EaglehornBow, false);
                         break;
                     }
-                case CClass.WARLOCK:
+                case Card.CClass.WARLOCK:
                     {
                         if (hasMadScientist)
                             ChoseWeapon(choices, 2, 1);
@@ -268,7 +271,7 @@ namespace SmartBotUI.Mulligan
 
                         break;
                     }
-                case CClass.WARRIOR:
+                case Card.CClass.WARRIOR:
                     {
                         _whiteList.AddOrUpdate(IronbeakOwl, false);
                         _whiteList.AddOrUpdate(Wolfrider, false);
@@ -281,24 +284,24 @@ namespace SmartBotUI.Mulligan
                     }
             }
 
-            foreach (var s in from s in choices let keptOneAlready = _cardsToKeep.Any(c => c.Name == s.Name) where _whiteList.ContainsKey(s.Name) where !keptOneAlready | _whiteList[s.Name] select s)
+            foreach (var s in from s in choices let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString()) where _whiteList.ContainsKey(s.ToString()) where !keptOneAlready | _whiteList[s.ToString()] select s)
                 _cardsToKeep.Add(s);
 
             return _cardsToKeep;
         }
         /*Good hand implies that there is a good 1, 2 and 3 drop
          It's hardcoded for hunters only, but it is the same concept behind Auto_Arena*/
-        private static Tuple<bool, bool, bool, bool> AnalyzeMyHandTuple(List<Card> choices)
+        private static Tuple<bool, bool, bool, bool> AnalyzeMyHandTuple(List<Card.Cards> choices)
         {
-            var has1Drop = choices.Any(c => c.Cost == 1);
-            var has2Drop = choices.Any(c => c.Cost == 2);
-            var has3Drop = choices.Any(c => c.Cost == 3);
-            var has4Drop = choices.Any(c => c.Cost == 4);
+            var has1Drop = choices.Any(c => CardTemplate.LoadFromId(c.ToString()).Cost == 1);
+            var has2Drop = choices.Any(c => CardTemplate.LoadFromId(c.ToString()).Cost == 2);
+            var has3Drop = choices.Any(c => CardTemplate.LoadFromId(c.ToString()).Cost == 3);
+            var has4Drop = choices.Any(c => CardTemplate.LoadFromId(c.ToString()).Cost == 4);
 
             var handStatus = new Tuple<bool, bool, bool, bool>(has1Drop, has2Drop, has3Drop, has4Drop);
-            return handStatus; 
+            return handStatus;
             //throw new NotImplementedException();
         }
     }
-    
+
 }
