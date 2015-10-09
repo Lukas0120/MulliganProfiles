@@ -112,7 +112,7 @@ namespace SmartBotUI.Mulligan
 
         #region Methods
 
-        public override List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
+        public List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
             bool hasCoin = Choices.Count > 3;
             bool has2drop = false;
@@ -318,10 +318,10 @@ namespace SmartBotUI.Mulligan
             #endregion
 
             foreach (Card.Cards s in from s in Choices
-                              let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString())
-                              where _whiteList.ContainsKey(s.ToString())
-                              where !keptOneAlready | _whiteList[s.ToString()]
-                              select s)
+                                     let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString())
+                                     where _whiteList.ContainsKey(s.ToString())
+                                     where !keptOneAlready | _whiteList[s.ToString()]
+                                     select s)
                 _cardsToKeep.Add(s);
             return _cardsToKeep;
         }
