@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SmartBot.Database;
+using SmartBot.Mulligan;
+using SmartBot.Plugins.API;
 using SmartBotUI;
 using SmartBotUI.Settings;
 
@@ -95,7 +97,7 @@ namespace SmartBotUI.Mulligan
 
         private readonly Dictionary<string, bool> _whiteList; // CardName, KeepDouble
         private readonly Dictionary<string, int> _ramp;
-        private readonly List<Card> _cardsToKeep;
+        private readonly List<Card.Cards> _cardsToKeep;
 
 
 
@@ -104,7 +106,7 @@ namespace SmartBotUI.Mulligan
         {
             _whiteList = new Dictionary<string, bool>();
             _ramp = new Dictionary<string, int>();// wild growth or Darnassus Aspirant
-            _cardsToKeep = new List<Card>();
+            _cardsToKeep = new List<Card.Cards>();
         }
 
 
@@ -114,7 +116,7 @@ namespace SmartBotUI.Mulligan
         //                 Wild Growth against control
         //
         //  bl stands for boom and lore. If called with true, it will allow dr boom and ancient of lore ramping 
-        public void Ramp(List<Card> choices, int wg = 1, int da = 2, bool bl = false) //Wild Growth and Darnasuss Aspirant
+        public void Ramp(List<Card.Cards> choices, int wg = 1, int da = 2, bool bl = false) //Wild Growth and Darnasuss Aspirant
         {
             var coin = choices.Count > 3;
 
@@ -125,9 +127,9 @@ namespace SmartBotUI.Mulligan
                 return;
             }
 
-            if (bl && (choices.Any(c => c.Name == DrBoom)))
+            if (bl && (choices.Any(c => c.ToString() == DrBoom)))
                 _whiteList.AddOrUpdate(DrBoom, false);
-            else if (bl && (choices.Any(c => c.Name == AncientOfLore)))
+            else if (bl && (choices.Any(c => c.ToString() == AncientOfLore)))
                 _whiteList.AddOrUpdate(AncientOfLore, false);
 
             if (FaceDruid)
@@ -138,28 +140,28 @@ namespace SmartBotUI.Mulligan
 
                 foreach (var c in choices)
                 {
-                    var temp = CardTemplate.LoadFromId(c.Name);
+                    var temp = CardTemplate.LoadFromId(c.ToString());
                     if (temp.Cost == 1 && temp.Type == SmartBot.Plugins.API.Card.CType.MINION)
                     {
                         onedrop = true;
-                        _whiteList.AddOrUpdate(c.Name, false);
+                        _whiteList.AddOrUpdate(c.ToString(), false);
                     }
                     if (temp.Cost == 2 && temp.Type == SmartBot.Plugins.API.Card.CType.MINION)
                     {
                         twodrop = true;
-                        _whiteList.AddOrUpdate(c.Name, false);
+                        _whiteList.AddOrUpdate(c.ToString(), false);
                     }
                     if (temp.Cost == 3 && temp.Type == SmartBot.Plugins.API.Card.CType.MINION)
                     {
                         threedrop = true;
-                        _whiteList.AddOrUpdate(c.Name, false);
+                        _whiteList.AddOrUpdate(c.ToString(), false);
                     }
                 }
                 foreach (var c in choices)
                 {
-                    var temp = CardTemplate.LoadFromId(c.Name);
-                    if (!twodrop && temp.Cost==2 && temp.Type == SmartBot.Plugins.API.Card.CType.SPELL)
-                        _whiteList.AddOrUpdate(c.Name,false);
+                    var temp = CardTemplate.LoadFromId(c.ToString());
+                    if (!twodrop && temp.Cost == 2 && temp.Type == SmartBot.Plugins.API.Card.CType.SPELL)
+                        _whiteList.AddOrUpdate(c.ToString(), false);
                 }
             }
 
@@ -172,7 +174,7 @@ namespace SmartBotUI.Mulligan
             while (true)
             {
 
-                if (choices.Any(c => c.Name == _ramp.FirstOrDefault(x => x.Value == i).Key))
+                if (choices.Any(c => c.ToString() == _ramp.FirstOrDefault(x => x.Value == i).Key))
                 {
                     _whiteList.AddOrUpdate(_ramp.FirstOrDefault(x => x.Value == i).Key, false);
                     break;
@@ -186,15 +188,15 @@ namespace SmartBotUI.Mulligan
                 _whiteList.AddOrUpdate(DarnasussAspirant, true);
         }
 
-        public override List<Card> HandleMulligan(List<Card> choices, CClass opponentClass, CClass ownClass)
+        public List<Card.Cards> HandleMulligan(List<Card.Cards> choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
             /*Conditions based on mulligan openers*/
             var hasCoin = choices.Count > 3;
-            var hasInnervate = choices.Any(g => g.Name == Innervate); //If there is an innervate
-            var doubleInnervate = choices.Count(g => g.Name == Innervate) == 2; //If there are 2 innervates
-            var hasWildGrowth = choices.Any(g => g.Name == WildGrowth); //If the is a wild growth
-            var hasAspirant = choices.Any(g => g.Name == DarnasussAspirant); //If there is an Aspirant
-            var weaponClass = opponentClass == CClass.WARRIOR || opponentClass == CClass.PALADIN;
+            var hasInnervate = choices.Any(g => g.ToString() == Innervate); //If there is an innervate
+            var doubleInnervate = choices.Count(g => g.ToString() == Innervate) == 2; //If there are 2 innervates
+            var hasWildGrowth = choices.Any(g => g.ToString() == WildGrowth); //If the is a wild growth
+            var hasAspirant = choices.Any(g => g.ToString() == DarnasussAspirant); //If there is an Aspirant
+            var weaponClass = opponentClass == Card.CClass.WARRIOR || opponentClass == Card.CClass.PALADIN;
             var earlyGame = hasWildGrowth || hasAspirant;
 
             /*Always whitelists at least 1 innervate*/
@@ -230,17 +232,17 @@ namespace SmartBotUI.Mulligan
 
             switch (opponentClass)
             {
-                case CClass.DRUID:
+                case Card.CClass.DRUID:
                     {
                         control = true;
                         break;
                     }
-                case CClass.HUNTER:
+                case Card.CClass.HUNTER:
                     {
                         aggro = true;
                         break;
                     }
-                case CClass.MAGE:
+                case Card.CClass.MAGE:
                     {
                         _whiteList.AddOrUpdate(Wrath, false);
                         if (_facingMechMages)
@@ -249,13 +251,13 @@ namespace SmartBotUI.Mulligan
                             control = true;
                         break;
                     }
-                case CClass.PALADIN:
+                case Card.CClass.PALADIN:
                     {
                         if (earlyGame) _whiteList.AddOrUpdate(Swipe, false);
                         aggro = true;
                         break;
                     }
-                case CClass.PRIEST:
+                case Card.CClass.PRIEST:
                     {
                         if (earlyGame)
                             _whiteList.AddOrUpdate(Wrath, false);
@@ -264,23 +266,23 @@ namespace SmartBotUI.Mulligan
                         control = true;
                         break;
                     }
-                case CClass.ROGUE:
+                case Card.CClass.ROGUE:
                     {
                         control = true;
                         break;
                     }
-                case CClass.SHAMAN:
+                case Card.CClass.SHAMAN:
                     {
                         control = true;
                         break;
                     }
-                case CClass.WARLOCK:
+                case Card.CClass.WARLOCK:
                     {
                         if (earlyGame) _whiteList.AddOrUpdate(KeeperOfGroove, false);
                         control = true;
                         break;
                     }
-                case CClass.WARRIOR:
+                case Card.CClass.WARRIOR:
                     {
                         _whiteList.AddOrUpdate(Wrath, false);
                         control = true;
@@ -353,20 +355,20 @@ namespace SmartBotUI.Mulligan
             {
                 bool keptOneAlready = false;
 
-                if (_cardsToKeep.Any(c => c.Name == s.Name))
+                if (_cardsToKeep.Any(c => c.ToString() == s.ToString()))
                 {
                     keptOneAlready = true;
                 }
-                if (_whiteList.ContainsKey(s.Name))
+                if (_whiteList.ContainsKey(s.ToString()))
                 {
-                    if (!keptOneAlready | _whiteList[s.Name])
+                    if (!keptOneAlready | _whiteList[s.ToString()])
                     {
                         _cardsToKeep.Add(s);
                     }
                 }
             }
              -------------------------------------------------*/
-            foreach (var s in from s in choices let keptOneAlready = _cardsToKeep.Any(c => c.Name == s.Name) where _whiteList.ContainsKey(s.Name) where !keptOneAlready | _whiteList[s.Name] select s)
+            foreach (var s in from s in choices let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString()) where _whiteList.ContainsKey(s.ToString()) where !keptOneAlready | _whiteList[s.ToString()] select s)
                 _cardsToKeep.Add(s);
 
 
