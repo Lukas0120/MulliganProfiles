@@ -106,7 +106,7 @@ namespace SmartBotUI.Mulligan
 
         }
 
-        public override List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
+        public List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
             bool hasCoin = Choices.Count > 3;
             bool ancientOwl = false;           //Ancient watcher + ironbeak Owl
@@ -291,22 +291,9 @@ namespace SmartBotUI.Mulligan
             }
 
 
-            foreach (Card.Cards s in Choices)
-            {
-                bool keptOneAlready = false;
-
-                if (_cardsToKeep.Any(c => c.ToString() == s.ToString()))
-                {
-                    keptOneAlready = true;
-                }
-                if (_whiteList.ContainsKey(s.ToString()))
-                {
-                    if (!keptOneAlready | _whiteList[s.ToString()])
-                    {
-                        _cardsToKeep.Add(s);
-                    }
-                }
-            }
+            foreach (var s in from s in Choices let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString()) where _whiteList.ContainsKey(s.ToString()) where !keptOneAlready | _whiteList[s.ToString()] select s)
+                _cardsToKeep.Add(s);
+            
 
             return _cardsToKeep;
         }
