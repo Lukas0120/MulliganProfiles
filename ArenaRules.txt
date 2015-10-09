@@ -1,0 +1,104 @@
+//Flamestrike. It's op so we need 30
+CS2_032=30
+//Astral Communion
+AT_043=0
+//Tracking
+DS1_184=0
+//Vanish
+NEW1_004=0
+//Coleseum Manager
+AT_110=0
+//Floating Watcher 
+GVG_100=0
+//Plymorph Boar misplays a lot, better avoid
+AT_005=0
+//demonfuse, targets non demons and freezes
+AT_024=0
+//Doomsayer
+NEW1_021=0
+//Kezan Mystic
+GVG_074=1
+//Ancient Mage  useless
+EX1_584=0
+//Mukla's Champion
+AT_090=2
+//Magma Rager
+CS2_118=0
+//Angry Chick
+EX1_009=0
+//Dust Devil
+EX1_243=0
+//Moonfire
+CS2_008=0
+//Savagery
+EX1_578=0
+//Bestial Wrath
+EX1_549=0
+//Call Pet
+GVG_017=0
+//Feign Death
+GVG_026=0
+//Cobra Shot
+GVG_073=0
+//Flame Lance
+AT_001=2
+//Eye for an Eye
+EX1_132=0
+//Argent Lance nobody uses 2 health minions in arena
+AT_077=0
+//Lorewalker
+EX1_100=0
+//NatPage
+EX1_557=0
+//Captain Greenskin
+NEW1_024=0
+//Rend Blackhand
+BRM_029=0
+//Clockwork Giant
+AT_096=0
+//JnkBot
+GVG_106=0
+//Tree of Life
+GVG_033=0
+//Baron Rivendare
+FP1_031=0
+//Nozdormu I hope it's obvious lol 
+EX1_560=0
+//Majordomu Executus
+BRM_027=0
+//Kragg Captain
+AT_070=0
+//Bolf
+AT_124=0
+//Mimiron
+GVG_111=0
+//Hungry Crab
+NEW1_017=0
+//Alarm-o-bot
+EX1_006=0
+//Secretkeeper
+EX1_080=0
+//Target Dummy
+GVG_093=0
+//Coldlight Seer
+EX1_103=0
+//Grimscale Oracle
+EX1_508=0
+//Stoneskin Gargoyle
+FP1_027=0
+//Undertaker
+FP1_028=0
+//Totemic Might
+EX1_244=0
+//Ethereal Arcanist
+EX1_274=0
+//LightWell
+EX1_341=0
+//Headcrack
+EX1_137=0
+//Poisoned Blade
+FP1_019=0
+//Cogmaster Wrench
+GVG_024=0
+//Gang Up
+BRM_007=0
