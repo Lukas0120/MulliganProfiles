@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SmartBot.Mulligan;
+using SmartBot.Plugins.API;
 using SmartBotUI;
 using SmartBotUI.Settings;
 /*
@@ -47,14 +49,14 @@ namespace SmartBotUI.Mulligan
         private string _twilightGuardian = "AT_017"; //This value was soooooooooooo off that I nearly broke my screen lol 
         private string _twilightWhelp = "BRM_004";
         private string _velensChosen = "GVG_010";
-        private string _wildPyromancer = "NEW1_020"; 
+        private string _wildPyromancer = "NEW1_020";
         private string _wyrmrestAgent = "AT_116";
         private string _ysera = "EX1_572";
 
 
         private Dictionary<string, bool> _whiteList; // CardName, KeepDouble
         private Dictionary<string, int> _dragonList; // This will be used to hunt for high cost dragons to activate synergies with the deck
-        private List<Card> _cardsToKeep;
+        private List<Card.Cards> _cardsToKeep;
 
         #endregion Data
 
@@ -65,7 +67,7 @@ namespace SmartBotUI.Mulligan
         {
             _whiteList = new Dictionary<string, bool>();
             _dragonList = new Dictionary<string, int>();
-            _cardsToKeep = new List<Card>();
+            _cardsToKeep = new List<Card.Cards>();
         }
 
         #endregion Constructor
@@ -101,7 +103,7 @@ namespace SmartBotUI.Mulligan
          * 
          * In short, it keeps dragon with the lowest key to activate our minions. 
          */
-        public void findDragonSynergy(List<Card> Choices, int DDC, int TG, int AZD, int CHIL, int YSR, int NEF, int CHR) //v2.0
+        public void findDragonSynergy(List<Card.Cards> Choices, int DDC, int TG, int AZD, int CHIL, int YSR, int NEF, int CHR) //v2.0
         {
             bool kiblerDragonActivator = false;
             _dragonList.AddOrUpdate(_dragonkinSorcerer, DDC);
@@ -120,8 +122,8 @@ namespace SmartBotUI.Mulligan
             int i = 0;
             while (true)
             {
-                
-                if (Choices.Any(c => c.Name == _dragonList.FirstOrDefault(x => x.Value == i).Key))
+
+                if (Choices.Any(c => c.ToString() == _dragonList.FirstOrDefault(x => x.Value == i).Key))
                 {
                     _whiteList.AddOrUpdate(_dragonList.FirstOrDefault(x => x.Value == i).Key, false);
                     break;
@@ -131,7 +133,7 @@ namespace SmartBotUI.Mulligan
                     break; //Doesn't bark anymore
             }
 
-            
+
 
         }
         /****************************************************************************************************************************/
@@ -139,7 +141,7 @@ namespace SmartBotUI.Mulligan
         /****************************************************************************************************************************/
 
 
-        public override List<Card> HandleMulligan(List<Card> Choices, CClass opponentClass, CClass ownClass)
+        public List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
             bool hasCoin = Choices.Count > 3;
             _whiteList.AddOrUpdate(_coin, true);
@@ -160,7 +162,7 @@ namespace SmartBotUI.Mulligan
             _whiteList.AddOrUpdate(_twilightWhelp, true);
             _whiteList.AddOrUpdate(_wyrmrestAgent, false);
 
-            if ((opponentClass != CClass.WARRIOR) && hasCoin) //can be argued that it's fine since you both will just draw cards until one of you fatigues
+            if ((opponentClass != Card.CClass.WARRIOR) && hasCoin) //can be argued that it's fine since you both will just draw cards until one of you fatigues
                 _whiteList.AddOrUpdate(_northshireCleric, false);
 
             if (hasCoin)
@@ -172,26 +174,26 @@ namespace SmartBotUI.Mulligan
             /*********************************************/
             /*************EndCore*************************/
             /*********************************************/
-            
+
 
             //Check early dragon synergy minions
-            if (Choices.Any(c => c.Name == _twilightWhelp) || Choices.Any(c => c.Name == _wyrmrestAgent))
+            if (Choices.Any(c => c.ToString() == _twilightWhelp) || Choices.Any(c => c.ToString() == _wyrmrestAgent))
                 hasDragonMinions = true;
 
-            if (Choices.Any(c => c.Name == _twilightWhelp) && Choices.Any(c => c.Name == _wyrmrestAgent))
+            if (Choices.Any(c => c.ToString() == _twilightWhelp) && Choices.Any(c => c.ToString() == _wyrmrestAgent))
                 hasEarlyCurve = true;
 
-            if (hasEarlyCurve && hasDragonMinions && (Choices.Any(c => c.Name == _dragonkinSorcerer) || Choices.Any(c => c.Name == _twilightGuardian) || Choices.Any(c => c.Name == _azureDrake) ||
-                Choices.Any(c => c.Name == _chillmaw) || Choices.Any(c => c.Name == _ysera) || Choices.Any(c => c.Name == _nefarian) || Choices.Any(c => c.Name == _chromaggus)))
+            if (hasEarlyCurve && hasDragonMinions && (Choices.Any(c => c.ToString() == _dragonkinSorcerer) || Choices.Any(c => c.ToString() == _twilightGuardian) || Choices.Any(c => c.ToString() == _azureDrake) ||
+                Choices.Any(c => c.ToString() == _chillmaw) || Choices.Any(c => c.ToString() == _ysera) || Choices.Any(c => c.ToString() == _nefarian) || Choices.Any(c => c.ToString() == _chromaggus)))
                 activator = true; //This is used in case we want to whitelist blackwing technician, or corruptor
 
             // check to see if you have 2 whelps in your opener
-            if (Choices.Count(g => g.Name == _twilightWhelp) == 2) //2 of the cards are whelps 
+            if (Choices.Count(g => g.ToString() == _twilightWhelp) == 2) //2 of the cards are whelps 
                 activator = true; //The idea behind this case is keeping 1 whelp in hand for activator purpse. Not sure if bot actually does that.
 
             if (activator)
                 _whiteList.AddOrUpdate(_wyrmrestAgent, true);
-            
+
             #endregion Default Mulligan
 
             #region Class Specific Mulligan
@@ -208,7 +210,7 @@ namespace SmartBotUI.Mulligan
                  * YSR = Ysera
                  * Nef = Nefarian 
                  */
-                case CClass.DRUID:
+                case Card.CClass.DRUID:
                     {
                         if (hasDragonMinions)// could be optimized since keeping whelp and ysera might not be bringt if you go first. But then again, it's rng and that case is super rare
                             findDragonSynergy(Choices, 3, 1, 2, 4, 5, 6, 7);
@@ -221,7 +223,7 @@ namespace SmartBotUI.Mulligan
 
                         break;
                     }
-                case CClass.HUNTER:
+                case Card.CClass.HUNTER:
                     {
                         //Not sure if I should keep pain if I only have a whelp
                         _whiteList.AddOrUpdate(_northshireCleric, false);
@@ -242,7 +244,7 @@ namespace SmartBotUI.Mulligan
 
                         break;
                     }
-                case CClass.MAGE: //I didn't think much through pain logic with mages
+                case Card.CClass.MAGE: //I didn't think much through pain logic with mages
                     //Major assumptions is that you are facing mechs. Although logic for freeze mages isn't that far off
                     {
                         if (hasEarlyCurve) // 1 and 2 dragon synergy drop
@@ -260,7 +262,7 @@ namespace SmartBotUI.Mulligan
 
                         break;
                     }
-                case CClass.PALADIN:
+                case Card.CClass.PALADIN:
                     {
                         _whiteList.AddOrUpdate(_wildPyromancer, false);
                         _whiteList.AddOrUpdate(_shadowWordPain, false);
@@ -274,7 +276,7 @@ namespace SmartBotUI.Mulligan
                     }
 
                 //************Everything below this line, I haven't put much thought to it***********************
-                case CClass.PRIEST:
+                case Card.CClass.PRIEST:
                     {   //You could argue that pain is good, but I'd rather hunt for early minions, since dragon priest is a tempo control
 
                         //_whiteList.AddOrUpdate(_shadowWordPain, false);
@@ -287,7 +289,7 @@ namespace SmartBotUI.Mulligan
                             _whiteList.AddOrUpdate(_velensChosen, false);
                         break;
                     }
-                case CClass.ROGUE:
+                case Card.CClass.ROGUE:
                     { //I have no idea, I saw 34 rogues in my stats in over 1000 games this month. Class is dead, pick whatever lol 
                         if (hasDragonMinions)
                             findDragonSynergy(Choices, 2, 1, 3, 4, 5, 6, 7);
@@ -299,7 +301,7 @@ namespace SmartBotUI.Mulligan
                             _whiteList.AddOrUpdate(_velensChosen, false);
                         break;
                     }
-                case CClass.SHAMAN:
+                case Card.CClass.SHAMAN:
                     {
                         //86% winrate over 50 games. Class is as dead as rogue. Pick whatever
                         if (hasDragonMinions)
@@ -312,7 +314,7 @@ namespace SmartBotUI.Mulligan
                             _whiteList.AddOrUpdate(_velensChosen, false);
                         break;
                     }
-                case CClass.WARLOCK:
+                case Card.CClass.WARLOCK:
                     {   //Major assumption here is that it's a demon handlock because post 5 I've seen 0 zoo decks. 
                         //So I decided that early tempo is better than removal like pain. 
 
@@ -326,7 +328,7 @@ namespace SmartBotUI.Mulligan
                             _whiteList.AddOrUpdate(_velensChosen, false);
                         break;
                     }
-                case CClass.WARRIOR:
+                case Card.CClass.WARRIOR:
                     {
                         _whiteList.AddOrUpdate(_shadowWordPain, false); //Screw acolytes
                         if (hasDragonMinions)
@@ -342,7 +344,7 @@ namespace SmartBotUI.Mulligan
 
             #endregion
 
-            foreach (var s in from s in Choices let keptOneAlready = _cardsToKeep.Any(c => c.Name == s.Name) where _whiteList.ContainsKey(s.Name) where !keptOneAlready | _whiteList[s.Name] select s)
+            foreach (var s in from s in Choices let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString()) where _whiteList.ContainsKey(s.ToString()) where !keptOneAlready | _whiteList[s.ToString()] select s)
                 _cardsToKeep.Add(s);
 
 
