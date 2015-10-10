@@ -39,22 +39,57 @@ namespace SmartBotUI.Mulligan
 
             _whiteList.AddOrUpdate(HandleWeapons(Choices, hand), false);// only 1 weapon is allowed
             _whiteList.AddOrUpdate(HandleSpells(Choices, hand), false); // only 1 spell is allowed
-            Bot.Log("Your Card options are");
-           
-            foreach (var q in Choices)
-                Bot.Log(CardTemplate.LoadFromId(q.ToString()).ToString());
-            Bot.Log("");
-            Bot.Log("Mulligan pick the following cards to keep ");
-            foreach (var s in from s in Choices
-                              let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString())
-                              where _whiteList.ContainsKey(s.ToString())
-                              where !keptOneAlready | _whiteList[s.ToString()]
-                              select s)
-            {
-                Bot.Log(CardTemplate.LoadFromId(s.ToString()).ToString());
-                _cardsToKeep.Add(s);
-            }
 
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\MulliganChoicesArchive.txt", true))
+            {
+                file.WriteLine("Your Card options were:");
+                var temp = CardTemplate.TemplateList;
+                foreach (var q in Choices)
+                    file.WriteLine(CardTemplate.LoadFromId(q.ToString()).Cost + " mana card: " + CardTemplate.LoadFromId(q.ToString()).Name);
+                file.WriteLine("");
+                file.WriteLine("Mulligan pick the following cards to keep ");
+                foreach (var s in from s in Choices
+                                  let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString())
+                                  where _whiteList.ContainsKey(s.ToString())
+                                  where !keptOneAlready | _whiteList[s.ToString()]
+                                  select s)
+                {
+                    file.WriteLine(CardTemplate.LoadFromId(s.ToString()).Cost + " mana card: " + CardTemplate.LoadFromId(s.ToString()).Name);
+                    _cardsToKeep.Add(s);
+                }
+
+
+                file.WriteLine("");
+                
+
+                file.WriteLine("----Your alternative options in your deck were: ");
+                var allOneDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 1 && !qq.IsSecret select qq.Name).ToList();
+                var allTwoDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 2 && !qq.IsSecret select qq.Name).ToList();
+                var allThreeDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 3 && !qq.IsSecret select qq.Name).ToList();
+                var allFourDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 4 && !qq.IsSecret select qq.Name).ToList();
+                file.WriteLine("------------One Drops:--");
+                foreach (var c in allOneDrops)
+                    file.WriteLine(c);
+                file.WriteLine("------------Two Drops:--");
+                foreach (var c in allTwoDrops)
+                    file.WriteLine(c);
+                file.WriteLine("------------Three Drops:--");
+                foreach (var c in allThreeDrops)
+                    file.WriteLine(c);
+                file.WriteLine("------------Four Drops:--");
+                foreach (var c in allFourDrops)
+                    file.WriteLine(c);
+                file.WriteLine(
+                    "============================================================================================");
+                file.WriteLine(
+                    "============================================================================================");
+                file.WriteLine("END OF MULLIGAN AGAINST " + opponentClass + " As a " + ownClass);
+                file.WriteLine(
+                    "============================================================================================");
+                file.WriteLine(
+                    "============================================================================================");
+                file.Close();
+            }
             return _cardsToKeep;
         }
 
@@ -111,7 +146,7 @@ namespace SmartBotUI.Mulligan
             foreach (var c in choices)
             {
                 var spells = CardTemplate.LoadFromId(c.ToString());
-                
+
                 if (spells.Type == Card.CType.SPELL && allowedSpells.Contains(c.ToString()))
                 {
                     if (spells.Cost == 0 && allowedSpells.Contains(c.ToString()))
@@ -124,7 +159,7 @@ namespace SmartBotUI.Mulligan
                         return c.ToString();
                     if (!spells.IsSecret && spells.Cost == 4 && !hand.Item4)
                         return c.ToString();
-                    
+
 
                 }
                 if (badSecrets.Contains(c.ToString())) continue;
@@ -191,18 +226,15 @@ namespace SmartBotUI.Mulligan
         /// <param name="whiteList">Dictionary list which contains cards that are kept</param>
         /// <returns></returns>
         private static Tuple<bool, bool, bool, bool> HandleMinions(List<Card.Cards> choices, IDictionary<string, bool> whiteList)
-        { 
-            
+        {
+
             var one = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 1);
             var two = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 2);
             var three = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 3);
             var four = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 4);
             var five = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 5);
-            var allOneDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 1 select qq.Name).ToList();
-            var allTwoDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 2 select qq.Name).ToList();
-            var allThreeDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 3 select qq.Name).ToList();
-            var allFourDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 4 select qq.Name).ToList();
-           
+
+
             var divineShield = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Divineshield);
             var spells =
                 Bot.CurrentDeck()
@@ -219,7 +251,7 @@ namespace SmartBotUI.Mulligan
             var demon =
                 Bot.CurrentDeck()
                     .Cards.Count(c => CardTemplate.LoadFromId(c).Race == Card.CRace.DEMON);
-            
+
             Bot.Log(string.Format("\n============================" +
                                   "\nMulligan adjusted with the following knowlege. \n\n" +
                                   " Your current arena deck contains:" +
