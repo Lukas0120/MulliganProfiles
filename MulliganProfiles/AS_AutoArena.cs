@@ -59,9 +59,9 @@ namespace SmartBotUI.Mulligan
                 }
 
 
-                file.WriteLine("");
-                
-
+                file.WriteLine("--------------------------------------");
+                file.WriteLine("Your average deck mana cost is " +Bot.CurrentDeck().Cards.Average(c => CardTemplate.LoadFromId(c).Cost));
+                file.WriteLine("--------------------------------------");
                 file.WriteLine("----Your alternative options in your deck were: ");
                 var allOneDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 1 && !qq.IsSecret select qq.Name).ToList();
                 var allTwoDrops = (from q in Bot.CurrentDeck().Cards select CardTemplate.LoadFromId(q.ToString()) into qq where qq.Cost == 2 && !qq.IsSecret select qq.Name).ToList();
@@ -234,7 +234,7 @@ namespace SmartBotUI.Mulligan
             var four = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 4);
             var five = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 5);
 
-
+            var averageCost = Bot.CurrentDeck().Cards.Average(c => CardTemplate.LoadFromId(c).Cost);
             var divineShield = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Divineshield);
             var spells =
                 Bot.CurrentDeck()
