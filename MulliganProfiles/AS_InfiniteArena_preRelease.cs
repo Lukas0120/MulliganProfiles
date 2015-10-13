@@ -33,7 +33,7 @@ namespace SmartBotUI.Mulligan
 
 
         /*========================END OF DEFINITION=======================*/
-        
+
         static int num2Drops;
         static int num3Drops;
         static bool has1Drop;
@@ -79,12 +79,12 @@ namespace SmartBotUI.Mulligan
                     _cardsToKeep.Add(s);
                 }
                 file.WriteLine(
-                   "============================================================================================");
+                   "========================================------------");
                 file.WriteLine(
                     "=====COMMENT SECTION[Agree? No? Why?]:");
                 file.WriteLine(
-                   "============================================================================================");
-                
+                   "========================================------------");
+
                 file.WriteLine("--------------------------------------");
                 file.WriteLine("Your average deck mana cost is " + Bot.CurrentDeck().Cards.Average(c => CardTemplate.LoadFromId(c).Cost));
                 file.WriteLine("--------------------------------------");
@@ -191,9 +191,9 @@ namespace SmartBotUI.Mulligan
                 if (badSecrets.Contains(c.ToString())) continue;
                 if (spells.Cost == 1 && spells.IsSecret && !hand.Item1)
                     return c.ToString();
-                if (spells.Cost == 2 && spells.IsSecret && !hand.Item2)
+                if (spells.Cost == 2 && spells.IsSecret && !hand.Item2 && !choices.Any(q => q.ToString().Equals("FP1_004"))) // toss away any secrets if I have mad scientist
                     return c.ToString();
-                if (spells.Cost == 3 && spells.IsSecret && !hand.Item3 && coin)
+                if (spells.Cost == 3 && spells.IsSecret && !hand.Item3 && coin && !choices.Any(q => q.ToString().Equals("FP1_004"))) //toss away any secret if I have mad scientist
                     return c.ToString();
             }
 
@@ -253,16 +253,16 @@ namespace SmartBotUI.Mulligan
         /// <returns></returns>
         private static Tuple<bool, bool, bool, bool> HandleMinions(List<Card.Cards> choices, IDictionary<string, bool> whiteList)
         {
-
+           
             var one = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 1);
             var two = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 2);
             var three = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 3);
             var four = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 4);
             var five = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 5);
 
-            var aggro = Bot.CurrentDeck().Cards.Average(c => CardTemplate.LoadFromId(c).Cost) < 3.5;
-            var control = Bot.CurrentDeck().Cards.Average(c => CardTemplate.LoadFromId(c).Cost) >= 3.5;
+            var aggro = Bot.CurrentDeck().Cards.Average(c => CardTemplate.LoadFromId(c).Cost) < _averageAggro;
             var divineShield = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Divineshield);
+
             var spells =
                 Bot.CurrentDeck()
                     .Cards.Count(c => CardTemplate.LoadFromId(c).Type == Card.CType.SPELL);
@@ -294,7 +294,10 @@ namespace SmartBotUI.Mulligan
                                   "Spell Count {10}\n", mechs, beast, demon, divineShield, one, two, three, four, five, weapons, spells));
 
 
-
+            var amazingOneDrops = new List<string>
+            {
+                "FP1_001" , 
+            };
             var badMinions = new List<string>
             {
                 "CS2_173", "CS2_203", "FP1_017", "EX1_045", "NEW1_037", "EX1_055", "EX1_058", "NEW1_021",
@@ -409,7 +412,7 @@ namespace SmartBotUI.Mulligan
             {
                 if (gotOne) break;
                 if (badMinions.Contains(c.ToString()) || CardTemplate.LoadFromId(c.ToString()).Cost != 1) continue;
-                CardTemplate minion = CardTemplate.LoadFromId(c.ToString());
+                var minion = CardTemplate.LoadFromId(c.ToString());
                 if (!badMinions.Contains(c.ToString()) && minion.Type == Card.CType.MINION && minion.Atk >= 1)
                 {
                     gotOne = true;
@@ -471,12 +474,12 @@ namespace SmartBotUI.Mulligan
             foreach (var c in allCards)
             {
                 var contestant = CardTemplate.LoadFromId(c);
-                
+
             }
             return false;
         }
 
-        private static double GetCardValue(Card card, List<Card.Cards> choices, List<Card.Cards> deck )
+        private static double GetCardValue(Card card, List<Card.Cards> choices, List<Card.Cards> deck)
         {
             var value = 0;
             var cardtemp = CardTemplate.LoadFromId(card.ToString());
@@ -501,7 +504,7 @@ namespace SmartBotUI.Mulligan
         /// <returns></returns>
         private static long ChanceOfGettingBetterCard(int cost)
         {
-            return (long) 0.000001;
+            return (long)0.000001;
         }
         private static void PriorityCheck(IEnumerable<Card.Cards> choices, ICollection<string> badMinions)
         {
@@ -510,7 +513,7 @@ namespace SmartBotUI.Mulligan
             var average = new List<Card>();
             var bad = new List<Card>();
             var garbage = new List<Card>();
-            
+
         }
     }
 }
