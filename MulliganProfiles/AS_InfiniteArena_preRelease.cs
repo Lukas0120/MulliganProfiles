@@ -31,12 +31,6 @@ namespace SmartBotUI.Mulligan2
         private static double _averageAggro = 3.5;
             //Experimental value that tells the mulligan which decks are considered aggro based on average mana cost of your deck. 
 
-        private const bool AutoUpdateMulliganOnLoad = false; //Doesn't work yet. 
-
-        private const bool AllowFourDrops = false;
-            //Probably won't even bother writing this logic. If I find 4 drops fit, they will most likely fit super well :) 
-
-
         /*========================END OF DEFINITION=======================*/
 
         private static int num2Drops;
@@ -521,40 +515,5 @@ namespace SmartBotUI.Mulligan2
             return curBest;
         }
 
-        /// <summary>
-        /// Checks 1 and 2 drops with divine shield 
-        /// 1 and 2 drops are considered good
-        /// </summary>
-        /// <param name="choices"></param>
-        /// <param name="badMinions"></param>
-        /// <returns></returns>
-        private static bool HasGoodDivineShield(IEnumerable<Card.Cards> choices, ICollection<string> badMinions)
-        {
-            return choices.Any(c => CardTemplate.LoadFromId(c).Divineshield && CardTemplate.LoadFromId(c).Cost == 2
-                                    && CardTemplate.LoadFromId(c).Cost == 1 &&
-                                    !badMinions.Contains(CardTemplate.LoadFromId(c).Name));
-        }
-
-        /// <summary>
-        /// Checks if current card is the best in your deck for early game
-        /// </summary>
-        /// <param name="card"></param>
-        /// <param name="cost"></param>
-        /// <returns></returns>
-        private static bool IsBest(Card card, int cost)
-        {
-            var allCards = (from q in Bot.CurrentDeck().Cards
-                select CardTemplate.LoadFromId(q.ToString())
-                into qq
-                where qq.Cost == cost && !qq.IsSecret
-                select qq.Name).ToList(); // get all cards of same cost
-            var best = card;
-            foreach (var c in allCards)
-            {
-                var contestant = CardTemplate.LoadFromId(c);
-
-            }
-            return false;
-        }
     }
 }
