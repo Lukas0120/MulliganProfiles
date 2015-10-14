@@ -6,7 +6,7 @@ using SmartBot.Database;
 using SmartBot.Mulligan;
 using SmartBot.Plugins.API;
 
-namespace SmartBotUI.Mulligan
+namespace SmartBotUI.Mulligan2
 {
     public static class Extension
     {
@@ -115,12 +115,67 @@ namespace SmartBotUI.Mulligan
                 file.WriteLine(
                     "============================================================================================");
                 file.Close();
+                
             }
+            using (
+                System.IO.StreamWriter file =
+                    new System.IO.StreamWriter(
+                        AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\DBALLCARDS", true))
+            {
+                var allcards = CardTemplate.TemplateList;
+                file.WriteLine(
+                   "============================================================================================");
+                file.WriteLine(
+                    "========================================1===================================================");
+                foreach (var q in allcards.Where(q => q.Value.Cost ==1))
+                    file.WriteLine("private static"+q.Value.Name +" " +q.Key);
+                file.WriteLine(
+                    "============================================================================================");
+                file.WriteLine(
+                    "=======================================2====================================================");
+                foreach (var q in allcards.Where(q => q.Value.Cost == 2))
+                    file.WriteLine(q.Value.Name + " " + q.Key);
+                file.WriteLine(
+                   "============================================================================================");
+                file.WriteLine(
+                    "=======================================3===================================================");
+
+                foreach (var q in allcards.Where(q => q.Value.Cost == 3))
+                    file.WriteLine(q.Value.Name + " " + q.Key);
+                file.WriteLine(
+                   "============================================================================================");
+                file.WriteLine(
+                    "======================================4=====================================================");
+                foreach (var q in allcards.Where(q => q.Value.Cost == 4))
+                    file.WriteLine(q.Value.Name + " " + q.Key);
+            }
+            using (
+               System.IO.StreamWriter file =
+                   new System.IO.StreamWriter(
+                       AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\ALL_CARDS", true))
+            {
+                var allcards = CardTemplate.TemplateList;
+
+                
+                //rgx.Replace(q.Value.Name, "");
+                foreach (var q in allcards)
+                {
+                    var name = q.Value.Name;
+                    name = new string(name.Where(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c) || c == '-').ToArray());
+                    file.WriteLine("private const string " + name.Replace(" ", "") + "=\"" + q.Key + "\"; // "+q.Value.Name +" | \t\t" +q.Value.ToString());
+                }
+            }
+
             return _cardsToKeep;
         }
 
 
-
+        public static string RemoveWhitespace(string input)
+        {
+            return new string(input.ToCharArray()
+                .Where(c => !char.IsWhiteSpace(c))
+                .ToArray());
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -201,7 +256,7 @@ namespace SmartBotUI.Mulligan
         }
 
         /// <summary>
-        /// 
+        /// Takes a better weapon with lower cost. 
         /// </summary>
         /// <param name="choices"></param>
         /// <param name="hand"></param>
@@ -254,49 +309,13 @@ namespace SmartBotUI.Mulligan
         private static Tuple<bool, bool, bool, bool> HandleMinions(List<Card.Cards> choices, IDictionary<string, bool> whiteList)
         {
            
-            var one = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 1);
-            var two = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 2);
-            var three = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 3);
-            var four = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 4);
-            var five = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Cost == 5);
-
+          
             var aggro = Bot.CurrentDeck().Cards.Average(c => CardTemplate.LoadFromId(c).Cost) < _averageAggro;
-            var divineShield = Bot.CurrentDeck().Cards.Count(c => CardTemplate.LoadFromId(c).Divineshield);
-
-            var spells =
-                Bot.CurrentDeck()
-                    .Cards.Count(c => CardTemplate.LoadFromId(c).Type == Card.CType.SPELL);
-            var weapons =
-                Bot.CurrentDeck()
-                    .Cards.Count(c => CardTemplate.LoadFromId(c).Type == Card.CType.WEAPON);
-            var mechs =
-                Bot.CurrentDeck()
-                    .Cards.Count(c => CardTemplate.LoadFromId(c).Race == Card.CRace.MECH);
-            var beast =
-                Bot.CurrentDeck()
-                    .Cards.Count(c => CardTemplate.LoadFromId(c).Race == Card.CRace.BEAST);
-            var demon =
-                Bot.CurrentDeck()
-                    .Cards.Count(c => CardTemplate.LoadFromId(c).Race == Card.CRace.DEMON);
-
-            Bot.Log(string.Format("\n============================" +
-                                  "\nMulligan adjusted with the following knowlege. \n\n" +
-                                  " Your current arena deck contains:" +
-                                  " \n Mechs {0} \n Beasts {1} \n Demons {2} \n Divine Shield Minions {3}\n" +
-                                  " ============================\n" +
-                                  "Minion Curve Breakdown \n" +
-                                  "# 1 Mana Drops {4}\n" +
-                                  "# 2 Mana Drops {5}\n" +
-                                  "# 3 Mana Drops {6}\n" +
-                                  "# 4 Mana Drops {7}\n" +
-                                  "# 5 Mana Drops {8}\n\n" +
-                                  "Weapon Count {9}\n" +
-                                  "Spell Count {10}\n", mechs, beast, demon, divineShield, one, two, three, four, five, weapons, spells));
-
-
+            
+            /*Zombie Chow, Argent Squire*/
             var amazingOneDrops = new List<string>
             {
-                "FP1_001" , 
+                "FP1_001" , "EX1_008", 
             };
             var badMinions = new List<string>
             {
