@@ -67,7 +67,6 @@ namespace SmartBotUI.Mulligan2
                         AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\MulliganChoicesArchive.txt", true))
             {
                 file.WriteLine("Your Card options were:");
-                var temp = CardTemplate.TemplateList;
                 foreach (var q in Choices)
                     file.WriteLine(CardTemplate.LoadFromId(q.ToString()).Cost + " mana card: " +
                                    CardTemplate.LoadFromId(q.ToString()).Name);
