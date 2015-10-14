@@ -29,7 +29,13 @@ namespace SmartBotUI.Mulligan2
         /*Very experimental, and will not work until I feel comfortable with them*/
 
         private static double _averageAggro = 3.5;
-        
+            //Experimental value that tells the mulligan which decks are considered aggro based on average mana cost of your deck. 
+
+        private const bool AutoUpdateMulliganOnLoad = false; //Doesn't work yet. 
+
+        private const bool AllowFourDrops = false;
+            //Probably won't even bother writing this logic. If I find 4 drops fit, they will most likely fit super well :) 
+
 
         /*========================END OF DEFINITION=======================*/
 
@@ -39,6 +45,7 @@ namespace SmartBotUI.Mulligan2
         private static bool has2Drop;
         private static bool has3Drop;
         private static bool has4Drop;
+        
 
         public bMulliganProfile()
         {
@@ -138,41 +145,8 @@ namespace SmartBotUI.Mulligan2
                 file.Close();
 
             }
-            using (
-                System.IO.StreamWriter file =
-                    new System.IO.StreamWriter(
-                        AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\DBALLCARDS", true))
-            {
-                var allcards = CardTemplate.TemplateList;
-                file.WriteLine(
-                    "============================================================================================");
-                file.WriteLine(
-                    "========================================1===================================================");
-                foreach (var q in allcards.Where(q => q.Value.Cost == 1))
-                    file.WriteLine("private static" + q.Value.Name + " " + q.Key);
-                file.WriteLine(
-                    "============================================================================================");
-                file.WriteLine(
-                    "=======================================2====================================================");
-                foreach (var q in allcards.Where(q => q.Value.Cost == 2))
-                    file.WriteLine(q.Value.Name + " " + q.Key);
-                file.WriteLine(
-                    "============================================================================================");
-                file.WriteLine(
-                    "=======================================3===================================================");
 
-                foreach (var q in allcards.Where(q => q.Value.Cost == 3))
-                    file.WriteLine(q.Value.Name + " " + q.Key);
-                file.WriteLine(
-                    "============================================================================================");
-                file.WriteLine(
-                    "======================================4=====================================================");
-                foreach (var q in allcards.Where(q => q.Value.Cost == 4))
-                    file.WriteLine(q.Value.Name + " " + q.Key);
-            }
-           
-
-            return _cardsToKeep;
+           return _cardsToKeep;
         }
 
 
