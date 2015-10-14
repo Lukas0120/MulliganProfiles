@@ -150,13 +150,7 @@ namespace SmartBotUI.Mulligan2
         }
 
 
-        public static string RemoveWhitespace(string input)
-        {
-            return new string(input.ToCharArray()
-                .Where(c => !char.IsWhiteSpace(c))
-                .ToArray());
-        }
-
+       
         /// <summary>
         /// 
         /// </summary>
