@@ -34,17 +34,17 @@ namespace SmartBotUI.Mulligan.MC
          *      False = it will avoid that particular             *
          *              mulligan logc                             * 
          *========================================================*/
-        private bool midrangeSecretPaladin = false;                   //Midrange Secret Paladin based mulligan. 
+        private bool _midrangeSecretPaladin = false;                   //Midrange Secret Paladin based mulligan. 
         //                Keep rush and anti control on false.
 
-        private bool competitiveMustard = true;            //CM     //Keeps Competitive Spirit with Muster for Battle on coin
-        private bool vengefulSecretKeeper = false;         //VSK    //Keeps noble sacrifice with avenge when you have a secretkeeper
-        private bool nobleJuggler = true;                  //NKJ    //Keeps noble sacrifice with knife juggler
-        private bool redeeming2Drops = true;               //R2D    //Keep  redemption with Shielded Minibot, or Harvest Golem
-        private bool keepBloodKnight_onCurve = false;      //KBKoC  //Keeps Blood Knight on divine shield curve
-        private bool mysteriousChallenger_coin = true;    //MCC    //Keep  Mysterious Challenger on coin
-        private bool mysteriousChallenger_forever = true; //MCF    //Always keeps Mysterious Challenger even without coin
-        private bool coghammerLogic = true;                //Cog    //Keeps coghammer on curve, but never against warriors
+        private const bool CompetitiveMustard = true; //CM     //Keeps Competitive Spirit with Muster for Battle on coin
+        private const bool VengefulSecretKeeper = false;         //VSK    //Keeps noble sacrifice with avenge when you have a secretkeeper
+        private bool _nobleJuggler = true;                  //NKJ    //Keeps noble sacrifice with knife juggler
+        private const bool Redeeming2Drops = true;               //R2D    //Keep  redemption with Shielded Minibot, or Harvest Golem
+        private const bool KeepBloodKnightOnCurve = false;      //KBKoC  //Keeps Blood Knight on divine shield curve
+        private const bool MysteriousChallengerCoin = true;    //MCC    //Keep  Mysterious Challenger on coin
+        private const bool MysteriousChallengerForever = true; //MCF    //Always keeps Mysterious Challenger even without coin
+        private const bool CoghammerLogic = true;                //Cog    //Keeps coghammer on curve, but never against warriors
 
 
         /* Values for reference:***********************************************************************/
@@ -58,40 +58,36 @@ namespace SmartBotUI.Mulligan.MC
          */
 
 
-        private bool rdu = false;                                    //WIP Do not set to true
-        private bool antiControlBETA = false;               //AC     //Gets rid of early drops that are liability against Control Warriors/Patrons
-
-
         /**********************************************************/
         /*==============End of Custom Behavior Logic==============*/
         /*********Do not change anything below this line***********/
         /**********************************************************/
 
-        private string _abusiveSergeant = "CS2_188";
-        private string _annoyatron = "GVG_085";
-        private string _argentSquire = "EX1_008";
-        private string _avenge = "FP1_020";
-        private string _bloodKnight = "EX1_590";
-        private string _coin = "GAME_005";
-        private string _consecration = "CS2_093";
-        private string _competitiveSpirit = "AT_073";
-        private string _harvestGolem = "EX1_556";
-        private string _hauntedCreeper = "FP1_002";
-        private string _ironbeakOwl = "CS2_203";
-        private string _knifeJuggler = "NEW1_019";
-        private string _leperGnome = "EX1_029";
-        private string _madScientist = "FP1_004";
-        private string _musterForBattle = "GVG_061";
-        private string _mysteriousChallenger = "AT_079";
-        private string _nobleSacrifice = "EX1_130";
-        private string _pilotedShredder = "GVG_096";
-        private string _redemption = "EX1_136";
-        private string _repentance = "EX1_379";
-        private string _secretkeeper = "EX1_080";
-        private string _shieldedMinibot = "GVG_058";
-        private string _truesilverChamption = "CS2_097";
-        private string _coghammer = "GVG_059";
-        private string _zombieChow = "FP1_001";
+        private const string AbusiveSergeant = "CS2_188";
+        private const string Annoyatron = "GVG_085";
+        private const string ArgentSquire = "EX1_008";
+        private const string Avenge = "FP1_020";
+        private const string BloodKnight = "EX1_590";
+        private const string Coin = "GAME_005";
+        private const string Consecration = "CS2_093";
+        private const string CompetitiveSpirit = "AT_073";
+        private const string HarvestGolem = "EX1_556";
+        private const string HauntedCreeper = "FP1_002";
+        private const string IronbeakOwl = "CS2_203";
+        private const string KnifeJuggler = "NEW1_019";
+        private const string LeperGnome = "EX1_029";
+        private const string MadScientist = "FP1_004";
+        private const string MusterForBattle = "GVG_061";
+        private const string MysteriousChallenger = "AT_079";
+        private const string NobleSacrifice = "EX1_130";
+        private const string PilotedShredder = "GVG_096";
+        private const string Redemption = "EX1_136";
+        private const string Repentance = "EX1_379";
+        private const string Secretkeeper = "EX1_080";
+        private const string ShieldedMinibot = "GVG_058";
+        private const string TruesilverChamption = "CS2_097";
+        private const string Coghammer = "GVG_059";
+        private const string ZombieChow = "FP1_001";
 
 
         private Dictionary<string, bool> _whiteList; // CardName, KeepDouble
@@ -112,34 +108,34 @@ namespace SmartBotUI.Mulligan.MC
 
         #region Methods
 
-        public List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
+        public List<Card.Cards> HandleMulligan(List<Card.Cards> choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
-            bool hasCoin = Choices.Count > 3;
-            bool has2drop = (Choices.Any(c => c.ToString() == _harvestGolem) ||Choices.Any(c => c.ToString() == _shieldedMinibot) ||Choices.Any(c => c.ToString() == _madScientist) ||Choices.Any(c => c.ToString() == _knifeJuggler));
+            bool hasCoin = choices.Count > 3;
+            bool has2Drop = (choices.Any(c => c.ToString() == HarvestGolem) ||choices.Any(c => c.ToString() == ShieldedMinibot) ||choices.Any(c => c.ToString() == MadScientist) ||choices.Any(c => c.ToString() == KnifeJuggler));
             bool lazyFlag = false;
             #region Default Mulligan
 
-            _whiteList.AddOrUpdate(_abusiveSergeant, false);
-            _whiteList.AddOrUpdate(_argentSquire, true);
-            _whiteList.AddOrUpdate(_coin, true); // Would be nice to keep double
-            if (!antiControlBETA || (opponentClass != Card.CClass.WARRIOR))
-                _whiteList.AddOrUpdate(_hauntedCreeper, true);
-            _whiteList.AddOrUpdate(_knifeJuggler, false);
-            _whiteList.AddOrUpdate(_leperGnome, true);
-            _whiteList.AddOrUpdate(_madScientist, true);
-            _whiteList.AddOrUpdate(_secretkeeper, true);
-            _whiteList.AddOrUpdate(_shieldedMinibot, true);
-            _whiteList.AddOrUpdate(_zombieChow, true);
+            _whiteList.AddOrUpdate(AbusiveSergeant, false);
+            _whiteList.AddOrUpdate(ArgentSquire, true);
+            _whiteList.AddOrUpdate(Coin, true); // Would be nice to keep double
+            if (opponentClass != Card.CClass.WARRIOR)
+                _whiteList.AddOrUpdate(HauntedCreeper, true);
+            _whiteList.AddOrUpdate(KnifeJuggler, false);
+            _whiteList.AddOrUpdate(LeperGnome, true);
+            _whiteList.AddOrUpdate(MadScientist, true);
+            _whiteList.AddOrUpdate(Secretkeeper, true);
+            _whiteList.AddOrUpdate(ShieldedMinibot, true);
+            _whiteList.AddOrUpdate(ZombieChow, true);
 
 
 
             #endregion Default Mulligan
 
-           if (midrangeSecretPaladin && hasCoin && has2drop)
-                _whiteList.AddOrUpdate(_pilotedShredder, false);
+           if (_midrangeSecretPaladin && hasCoin && has2Drop)
+                _whiteList.AddOrUpdate(PilotedShredder, false);
 
-            if (midrangeSecretPaladin)
-                _whiteList.AddOrUpdate(_avenge, false);
+            if (_midrangeSecretPaladin)
+                _whiteList.AddOrUpdate(Avenge, false);
 
             switch (opponentClass)
             {
@@ -147,64 +143,64 @@ namespace SmartBotUI.Mulligan.MC
                     {
                         if (hasCoin)
                             lazyFlag = true;
-                        _whiteList.AddOrUpdate(_musterForBattle, false);
-                        if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_pilotedShredder, false);
+                        _whiteList.AddOrUpdate(MusterForBattle, false);
+                        if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(PilotedShredder, false);
 
                         break;
                     }
                 case Card.CClass.HUNTER:
                     {
-                        if (coghammerLogic && has2drop)
-                            _whiteList.AddOrUpdate(_coghammer, false);
-                        _whiteList.AddOrUpdate(_annoyatron, false);
-                        if (midrangeSecretPaladin && hasCoin)
-                            _whiteList.AddOrUpdate(_consecration, false);
-                        else if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_consecration, false);
+                        if (CoghammerLogic && has2Drop)
+                            _whiteList.AddOrUpdate(Coghammer, false);
+                        _whiteList.AddOrUpdate(Annoyatron, false);
+                        if (_midrangeSecretPaladin && hasCoin)
+                            _whiteList.AddOrUpdate(Consecration, false);
+                        else if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(Consecration, false);
                         break;
                     }
                 case Card.CClass.MAGE:
                     {
                         if (hasCoin)
                             lazyFlag = true;
-                        _whiteList.AddOrUpdate(_musterForBattle, false);
-                        if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_mysteriousChallenger, false);
+                        _whiteList.AddOrUpdate(MusterForBattle, false);
+                        if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(MysteriousChallenger, false);
                         else
-                            _whiteList.AddOrUpdate(_nobleSacrifice, false);
+                            _whiteList.AddOrUpdate(NobleSacrifice, false);
 
-                        if (midrangeSecretPaladin && hasCoin)
-                            _whiteList.AddOrUpdate(_consecration, false);
-                        else if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_consecration, false);
+                        if (_midrangeSecretPaladin && hasCoin)
+                            _whiteList.AddOrUpdate(Consecration, false);
+                        else if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(Consecration, false);
                         break;
                     }
                 case Card.CClass.PALADIN:
                     {
-                        if (hasCoin || has2drop)
+                        if (hasCoin || has2Drop)
                         {
-                            _whiteList.AddOrUpdate(_bloodKnight, false);
-                            _whiteList.AddOrUpdate(_ironbeakOwl, false);
+                            _whiteList.AddOrUpdate(BloodKnight, false);
+                            _whiteList.AddOrUpdate(IronbeakOwl, false);
                         }
-                        _whiteList.AddOrUpdate(_annoyatron, false);
-                        _whiteList.AddOrUpdate(_consecration, false);
+                        _whiteList.AddOrUpdate(Annoyatron, false);
+                        _whiteList.AddOrUpdate(Consecration, false);
 
-                        if (midrangeSecretPaladin && hasCoin)
-                            _whiteList.AddOrUpdate(_consecration, false);
-                        else if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_consecration, false);
+                        if (_midrangeSecretPaladin && hasCoin)
+                            _whiteList.AddOrUpdate(Consecration, false);
+                        else if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(Consecration, false);
 
-                        _whiteList.AddOrUpdate(_musterForBattle, false);
-                        if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_mysteriousChallenger, false);
+                        _whiteList.AddOrUpdate(MusterForBattle, false);
+                        if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(MysteriousChallenger, false);
                         break;
                     }
                 case Card.CClass.PRIEST:
                     {
-                        if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_mysteriousChallenger, false);
-                        _whiteList.AddOrUpdate(_pilotedShredder, false);
+                        if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(MysteriousChallenger, false);
+                        _whiteList.AddOrUpdate(PilotedShredder, false);
 
                         break;
                     }
@@ -212,103 +208,100 @@ namespace SmartBotUI.Mulligan.MC
                     {
                         if (hasCoin)
                             lazyFlag = true;
-                        _whiteList.AddOrUpdate(_musterForBattle, false);
-                        if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_mysteriousChallenger, false);
-                        _whiteList.AddOrUpdate(_pilotedShredder, false);
+                        _whiteList.AddOrUpdate(MusterForBattle, false);
+                        if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(MysteriousChallenger, false);
+                        _whiteList.AddOrUpdate(PilotedShredder, false);
 
                         break;
                     }
                 case Card.CClass.SHAMAN:
                     {
-                        _whiteList.AddOrUpdate(_musterForBattle, false);
-                        if (!midrangeSecretPaladin)
-                            _whiteList.AddOrUpdate(_mysteriousChallenger, false);
-                        _whiteList.AddOrUpdate(_pilotedShredder, false);
+                        _whiteList.AddOrUpdate(MusterForBattle, false);
+                        if (!_midrangeSecretPaladin)
+                            _whiteList.AddOrUpdate(MysteriousChallenger, false);
+                        _whiteList.AddOrUpdate(PilotedShredder, false);
                         break;
                     }
                 case Card.CClass.WARLOCK:
                     {
-                        _whiteList.AddOrUpdate(_consecration, false);
-                        _whiteList.AddOrUpdate(_musterForBattle, false);
+                        _whiteList.AddOrUpdate(Consecration, false);
+                        _whiteList.AddOrUpdate(MusterForBattle, false);
                         break;
                     }
                 case Card.CClass.WARRIOR:
                     {
-                        _whiteList.AddOrUpdate(_annoyatron, false);
-                        _whiteList.AddOrUpdate(_musterForBattle, false);
-                        if (!midrangeSecretPaladin && hasCoin)
-                            _whiteList.AddOrUpdate(_mysteriousChallenger, false);
+                        _whiteList.AddOrUpdate(Annoyatron, false);
+                        _whiteList.AddOrUpdate(MusterForBattle, false);
+                        if (!_midrangeSecretPaladin && hasCoin)
+                            _whiteList.AddOrUpdate(MysteriousChallenger, false);
 
-                        if (antiControlBETA && hasCoin)
-                            _whiteList.AddOrUpdate(_pilotedShredder, true);
-                        else
-                            _whiteList.AddOrUpdate(_pilotedShredder, false);
+                        _whiteList.AddOrUpdate(PilotedShredder, hasCoin);
 
                         break;
                     }
             }
-            if (mysteriousChallenger_forever)
-                _whiteList.AddOrUpdate(_mysteriousChallenger, false);
+            if (MysteriousChallengerForever)
+                _whiteList.AddOrUpdate(MysteriousChallenger, false);
 
-            if ((Choices.Any(c => c.ToString() == _coghammer) && (coghammerLogic && has2drop) && (opponentClass != Card.CClass.WARRIOR)))
-                _whiteList.AddOrUpdate(_coghammer, false);
+            if ((choices.Any(c => c.ToString() == Coghammer) && (CoghammerLogic && has2Drop) && (opponentClass != Card.CClass.WARRIOR)))
+                _whiteList.AddOrUpdate(Coghammer, false);
             else if ((opponentClass == Card.CClass.WARRIOR) || (opponentClass == Card.CClass.PRIEST) || (opponentClass == Card.CClass.ROGUE) || (opponentClass == Card.CClass.DRUID))
-                _whiteList.AddOrUpdate(_truesilverChamption, false);
+                _whiteList.AddOrUpdate(TruesilverChamption, false);
 
-            if ((competitiveMustard && lazyFlag) && (Choices.Any(c => c.ToString() == _competitiveSpirit) && Choices.Any(c => c.ToString() == _musterForBattle)))
+            if ((CompetitiveMustard && lazyFlag) && (choices.Any(c => c.ToString() == CompetitiveSpirit) && choices.Any(c => c.ToString() == MusterForBattle)))
             {
-                _whiteList.AddOrUpdate(_musterForBattle, false);
-                _whiteList.AddOrUpdate(_competitiveSpirit, false);
+                _whiteList.AddOrUpdate(MusterForBattle, false);
+                _whiteList.AddOrUpdate(CompetitiveSpirit, false);
             }
 
             //Keep Mysterious Challenger on coin
-            if (hasCoin && !midrangeSecretPaladin && mysteriousChallenger_coin)
+            if (hasCoin && !_midrangeSecretPaladin && MysteriousChallengerCoin)
             {
-                _whiteList.AddOrUpdate(_annoyatron, false);
-                _whiteList.AddOrUpdate(_mysteriousChallenger, false);
+                _whiteList.AddOrUpdate(Annoyatron, false);
+                _whiteList.AddOrUpdate(MysteriousChallenger, false);
             }
 
             // Redemption and Harvest Golem are kept if you have both.
-            if (redeeming2Drops &&
-               (Choices.Any(c => c.ToString() == _harvestGolem) ||
-                Choices.Any(c => c.ToString() == _shieldedMinibot)
+            if (Redeeming2Drops &&
+               (choices.Any(c => c.ToString() == HarvestGolem) ||
+                choices.Any(c => c.ToString() == ShieldedMinibot)
                 ))
             {
-                _whiteList.AddOrUpdate(_harvestGolem, false);
-                _whiteList.AddOrUpdate(_redemption, false);
+                _whiteList.AddOrUpdate(HarvestGolem, false);
+                _whiteList.AddOrUpdate(Redemption, false);
                 // has2drop = true;
             }
 
             if ((opponentClass == Card.CClass.ROGUE) || (opponentClass == Card.CClass.DRUID)) //These classes can kill Defender if it's played on turn 1. 
-                nobleJuggler = false;
+                _nobleJuggler = false;
 
             // Noble Sacrifice is kept if you have Knife Juggler.
-            if (nobleJuggler && (Choices.Any(c => c.ToString() == _knifeJuggler)))
-                _whiteList.AddOrUpdate(_nobleSacrifice, false);
+            if (_nobleJuggler && (choices.Any(c => c.ToString() == KnifeJuggler)))
+                _whiteList.AddOrUpdate(NobleSacrifice, false);
 
 
             // Tech choice with blood knight
-            if (keepBloodKnight_onCurve &&
-                (Choices.Any(c => c.ToString() == _argentSquire) && (Choices.Any(c => c.ToString() == _shieldedMinibot) || Choices.Any(c => c.ToString() == _annoyatron))))
+            if (KeepBloodKnightOnCurve &&
+                (choices.Any(c => c.ToString() == ArgentSquire) && (choices.Any(c => c.ToString() == ShieldedMinibot) || choices.Any(c => c.ToString() == Annoyatron))))
             {
-                _whiteList.AddOrUpdate(_annoyatron, false);
-                _whiteList.AddOrUpdate(_bloodKnight, false);
+                _whiteList.AddOrUpdate(Annoyatron, false);
+                _whiteList.AddOrUpdate(BloodKnight, false);
             }
             //Experimental segment that keeps noble sac and avenge with secret keeper. 
-            if (vengefulSecretKeeper &&
-                (Choices.Any(c => c.ToString() == _avenge) &&
-                (Choices.Any(c => c.ToString() == _secretkeeper) &&
-                 Choices.Any(c => c.ToString() == _nobleSacrifice))))
+            if (VengefulSecretKeeper &&
+                (choices.Any(c => c.ToString() == Avenge) &&
+                (choices.Any(c => c.ToString() == Secretkeeper) &&
+                 choices.Any(c => c.ToString() == NobleSacrifice))))
             {
-                _whiteList.AddOrUpdate(_nobleSacrifice, false);
-                _whiteList.AddOrUpdate(_avenge, false);
+                _whiteList.AddOrUpdate(NobleSacrifice, false);
+                _whiteList.AddOrUpdate(Avenge, false);
             }
 
 
             #endregion
 
-            foreach (Card.Cards s in from s in Choices
+            foreach (Card.Cards s in from s in choices
                                      let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString())
                                      where _whiteList.ContainsKey(s.ToString())
                                      where !keptOneAlready | _whiteList[s.ToString()]
