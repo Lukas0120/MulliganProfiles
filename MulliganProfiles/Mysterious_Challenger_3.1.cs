@@ -7,7 +7,7 @@ using SmartBot.Plugins.API;
 using SmartBotUI;
 
 
-namespace SmartBotUI.Mulligan
+namespace SmartBotUI.Mulligan.MC
 {
     public static class Extension
     {
@@ -115,7 +115,7 @@ namespace SmartBotUI.Mulligan
         public List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
             bool hasCoin = Choices.Count > 3;
-            bool has2drop = false;
+            bool has2drop = (Choices.Any(c => c.ToString() == _harvestGolem) ||Choices.Any(c => c.ToString() == _shieldedMinibot) ||Choices.Any(c => c.ToString() == _madScientist) ||Choices.Any(c => c.ToString() == _knifeJuggler));
             bool lazyFlag = false;
             #region Default Mulligan
 
@@ -135,16 +135,7 @@ namespace SmartBotUI.Mulligan
 
             #endregion Default Mulligan
 
-            #region Class Specific Mulligan
-            if ((Choices.Any(c => c.ToString() == _harvestGolem) ||
-                 Choices.Any(c => c.ToString() == _shieldedMinibot) ||
-                 Choices.Any(c => c.ToString() == _madScientist) ||
-                 Choices.Any(c => c.ToString() == _knifeJuggler)
-               ))
-            {
-                has2drop = true;
-            }
-            if (midrangeSecretPaladin && hasCoin && has2drop)
+           if (midrangeSecretPaladin && hasCoin && has2drop)
                 _whiteList.AddOrUpdate(_pilotedShredder, false);
 
             if (midrangeSecretPaladin)
@@ -272,7 +263,7 @@ namespace SmartBotUI.Mulligan
             }
 
             //Keep Mysterious Challenger on coin
-            if (hasCoin && !midrangeSecretPaladin)
+            if (hasCoin && !midrangeSecretPaladin && mysteriousChallenger_coin)
             {
                 _whiteList.AddOrUpdate(_annoyatron, false);
                 _whiteList.AddOrUpdate(_mysteriousChallenger, false);
@@ -325,7 +316,5 @@ namespace SmartBotUI.Mulligan
                 _cardsToKeep.Add(s);
             return _cardsToKeep;
         }
-
-        #endregion Methods
     }
 }
