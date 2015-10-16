@@ -22,12 +22,13 @@ namespace SmartBotUI.Mulligan2
 
     public class bMulliganProfile : MulliganProfile
     {
+        
         private Dictionary<string, bool> _whiteList; // CardName, KeepDouble
         private readonly List<Card.Cards> _cardsToKeep;
         private const string Coin = "GAME_005";
 
         /*Very experimental, and will not work until I feel comfortable with them*/
-
+        public bool _arenaMode = true; //do not touch
         private static double _averageAggro = 3.5;
             //Experimental value that tells the mulligan which decks are considered aggro based on average mana cost of your deck. 
 
@@ -126,6 +127,15 @@ namespace SmartBotUI.Mulligan2
                 file.WriteLine("------------Four Drops:--");
                 foreach (var c in allFourDrops)
                     file.WriteLine(c);
+                var yourDeck = Bot.CurrentDeck().Cards.ToList();
+                file.WriteLine("\n\nYOUR DECK string:\n");
+                file.WriteLine("");
+                foreach (var w in yourDeck)
+                {
+                    var t = CardTemplate.LoadFromId(w);
+                    file.Write("\"{0}\", ", t.Id);
+                }
+                file.WriteLine("");
                 file.WriteLine(
                     "============================================================================================");
                 file.WriteLine(
@@ -384,9 +394,9 @@ namespace SmartBotUI.Mulligan2
             if (aggro) return; //if my deck is low curve, I don't want a 4 drop
             foreach (var c in choices)
             {
-                if (badMinions.Contains(c.ToString()) || !has3Drop) continue;
+                if (badMinions.Contains(c.ToString()) || !has3Drop || (choices.Count < 4)) continue;
 
-                if (CardTemplate.LoadFromId(c.ToString()).Cost == 4 || (choices.Count > 3))
+                if (CardTemplate.LoadFromId(c.ToString()).Cost == 4)
                 {
                     var minion = CardTemplate.LoadFromId(c.ToString());
                     if (minion.Type == Card.CType.MINION)
@@ -443,6 +453,7 @@ namespace SmartBotUI.Mulligan2
             {
                 if (badMinions.Contains(c.ToString()) || CardTemplate.LoadFromId(c.ToString()).Cost != 2) continue;
                 var minion = CardTemplate.LoadFromId(c.ToString());
+                
                 if (minion.Type == Card.CType.MINION)
                 {
                     whiteList.AddOrUpdate(GetBestOne(choices, 2, badMinions), false);
