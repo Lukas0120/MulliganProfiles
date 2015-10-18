@@ -957,7 +957,7 @@ namespace SmartBotUI.Mulligan.Priority
             {
                 if (c.Value < 1) continue;
                 if (c.Value <= 1 && hasCoin) continue;
-                whiteList.AddOrUpdate(c.Key, c.Value > 6);
+                whiteList.AddOrUpdate(c.Key, c.Value > 6 && hasCoin);
                 num1Drops++;
                 if (num1Drops >= Allowed1Drops) break;
             }
