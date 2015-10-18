@@ -23,11 +23,18 @@ namespace SmartBotUI.Mulligan.Priority
     public class bMulliganProfile : MulliganProfile
     {
         private static bool hasCoin;
+        //=================ADJUSTABLE MINION CAP===================//
         public const int Allowed1Drops = 1;
         public static readonly int Allowed2Drops = hasCoin ? 3 : 2;      //allow 3 on coin, 1 wihtout
         public static readonly int Allowed3Drops = hasCoin ? 2 : 1;      //allows 2 on coin, 1 without
         public const int Allowed4Drops = 1;
-        
+
+
+        //=========================================================//
+
+
+
+
         private Dictionary<string, bool> _whiteList; // CardName, KeepDouble
         private static Dictionary<string, int> _priorityList;
         private readonly List<Card.Cards> _cardsToKeep;
@@ -993,7 +1000,7 @@ namespace SmartBotUI.Mulligan.Priority
             /*
              * 
              */
-            var myDeck = new List<string> { "NEW1_012", "NEW1_012", "EX1_116", "EX1_590", "GVG_002", "GVG_002", "GVG_003", "GVG_003", "GVG_013", "GVG_013", "GVG_004", "GVG_006", "GVG_006", "GVG_016", "GVG_016", "GVG_082", "GVG_082", "GVG_085", "GVG_085", "GVG_096", "GVG_096", "GVG_110", "AT_005", "CS2_029", "CS2_029", "EX1_277", "CS2_024", "CS2_024", "GVG_004", "GVG_044" };
+            var myDeck = Bot.CurrentDeck().Cards.ToList();
             var numMechs = myDeck.Count(q => CardTemplate.LoadFromId(q).Race == Card.CRace.MECH);
             var containsWarper = myDeck.Any(q => q.ToString() == Mechwarper);
             var numDrag = myDeck.Count(q => CardTemplate.LoadFromId(q).Race == Card.CRace.DRAGON);
@@ -1022,6 +1029,10 @@ namespace SmartBotUI.Mulligan.Priority
                             value -= 2;
                         if (c.Overload > 0)
                             value -= 4;
+                        if (c.Health == 3)
+                            value++;
+                        if (c.Health == c.Atk && c.HasBattlecry)
+                            value += 2;
                         if (c.Quality == Card.CQuality.Epic)
                             value -= 2;
                         if (c.Quality == Card.CQuality.Rare && c.Atk > c.Health)
