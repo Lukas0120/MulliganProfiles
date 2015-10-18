@@ -1108,6 +1108,8 @@ namespace SmartBotUI.Mulligan.Priority
                             value -= 7;
                         if (c.Health < c.Cost && c.Atk < c.Cost)
                             value -= 5;
+                        if (c.Health == 2 && c.Atk == 2 && c.Class == Card.CClass.DRUID)
+                            value += 5;
                         if (c.Class == Card.CClass.ROGUE && c.Race != Card.CRace.MECH)
                             value += 5;
                         if (c.HasBattlecry)
