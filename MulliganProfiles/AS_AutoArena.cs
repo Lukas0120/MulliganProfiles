@@ -577,7 +577,7 @@ namespace SmartBotUI.Mulligan.Priority
                     new StreamWriter(
                         AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\MulliganChoicesArchive.txt", true))
             {
-                file.WriteLine("Your Card options against " + opponentClass + " as a " + ownClass +" were:");
+                file.WriteLine("Your Card options against " + opponentClass + " as a " + ownClass + " were:");
                 foreach (var q in Choices)
                     file.WriteLine(CardTemplate.LoadFromId(q.ToString()).Cost + " mana card: " +
                                    CardTemplate.LoadFromId(q.ToString()).Name);
@@ -642,7 +642,7 @@ namespace SmartBotUI.Mulligan.Priority
                 count = 0;
                 file.WriteLine("__");
                 file.WriteLine("\n------------Two Drops:--");
-                
+
                 foreach (var c in allTwoDrops)
                 {
                     if (count == 3)
@@ -656,7 +656,7 @@ namespace SmartBotUI.Mulligan.Priority
                 count = 0;
                 file.WriteLine("__");
                 file.WriteLine("\n------------Three Drops:--");
-                
+
                 foreach (var c in allThreeDrops)
                 {
                     if (count == 3)
@@ -670,7 +670,7 @@ namespace SmartBotUI.Mulligan.Priority
                 count = 0;
                 file.WriteLine("__");
                 file.WriteLine("------------Four Drops:--");
-                
+
                 foreach (var c in allFourDrops)
                 {
                     if (count == 3)
@@ -959,6 +959,7 @@ namespace SmartBotUI.Mulligan.Priority
                 if (c.Value <= 1 && hasCoin) continue;
                 whiteList.AddOrUpdate(c.Key, c.Value > 6 && hasCoin);
                 num1Drops++;
+                has1Drop = true;
                 if (num1Drops >= Allowed1Drops) break;
             }
             var sortedDict2 = (myChoices2.OrderByDescending(entry => entry.Value))
@@ -968,6 +969,7 @@ namespace SmartBotUI.Mulligan.Priority
             foreach (var c in sortedDict2.Where(c => c.Value >= 2))
             {
                 num2Drops++;
+                has2Drop = true;
                 whiteList.AddOrUpdate(c.Key, c.Value > 4);
                 if (num2Drops == Allowed2Drops) break;
             }
@@ -980,6 +982,7 @@ namespace SmartBotUI.Mulligan.Priority
                 //if (num2Drops == 0) break;
                 if (c.Value < 1) continue;
                 num3Drops++;
+                has3Drop = true;
                 whiteList.AddOrUpdate(c.Key, false);
                 if (num3Drops == Allowed3Drops) break;
             }
@@ -996,7 +999,7 @@ namespace SmartBotUI.Mulligan.Priority
                 return -50;
             if (c.Cost > 4)
                 return 0;
-
+            var value = 0;
             /*
              * 
              */
@@ -1005,10 +1008,11 @@ namespace SmartBotUI.Mulligan.Priority
             var containsWarper = myDeck.Any(q => q.ToString() == Mechwarper);
             var numDrag = myDeck.Count(q => CardTemplate.LoadFromId(q).Race == Card.CRace.DRAGON);
             var numSecret = myDeck.Count(q => CardTemplate.LoadFromId(q).IsSecret && CardTemplate.LoadFromId(q).Cost == 1);
+            if (c.Cost == 6 && numSecret > 4)
+                value += 20;
 
 
 
-            var value = 0;
             var vanila = c.Health == 3 && c.Atk == 2;
             var vanila3 = c.Health == 4 && c.Atk == 3;
 
@@ -1031,6 +1035,8 @@ namespace SmartBotUI.Mulligan.Priority
                             value -= 4;
                         if (c.Health == 3)
                             value++;
+                        if (c.Race == Card.CRace.DEMON && c.Atk == 3)
+                            value += 4;
                         if (c.Health == c.Atk && c.HasBattlecry)
                             value += 2;
                         if (c.Quality == Card.CQuality.Epic)
@@ -1156,6 +1162,8 @@ namespace SmartBotUI.Mulligan.Priority
         private static void GetFourDrops(List<Card.Cards> choices, List<string> badMinions,
             IDictionary<string, bool> whiteList, bool aggro)
         {
+            if (has1Drop || has2Drop)
+                whiteList.AddOrUpdate(hasCoin ? PilotedShredder : "", false);
             if (!has3Drop) return; //if no 3 drop, return
             foreach (var c in choices)
             {
