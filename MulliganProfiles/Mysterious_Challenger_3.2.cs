@@ -128,6 +128,7 @@ namespace SmartBotUI.Mulligan.MCUpdate
             _whiteList.AddOrUpdate(ShieldedMinibot, true);
             _whiteList.AddOrUpdate(ZombieChow, true);
             _whiteList.AddOrUpdate(has2Drop ? HarvestGolem:"", false);
+            _whiteList.AddOrUpdate(choices.Any(c=>c.ToString() == KnifeJuggler) ? MusterForBattle: "", false);
             #endregion Default Mulligan
 
             _whiteList.AddOrUpdate(_midrangeSecretPaladin ? Avenge : "", false);
