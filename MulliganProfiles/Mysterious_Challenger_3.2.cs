@@ -48,17 +48,6 @@ namespace SmartBotUI.Mulligan.MCUpdate
         private const bool Redeeming2Drops = true;
         private const bool CoghammerLogic = true;
 
-        /* Values for reference:***********************************************************************/
-        /***********    CM       VSK       NKJ       R2D       KBKoC       MCF       MCC       Cog    *
-        /* v2.1.2:      false    false     true      true      false      false     true       false  *
-         * v2.2.1:      true     true      true      true      true       false     true       false  *
-         * Dr. 6:       false    false     false     false     false      true      false      false  *
-         * Wbulot dr6:  false    false     false     false     false      false     false      false  *
-         * ThyFate:     true     false     true      true      false      false     true       true   
-         * ********************************************************************************************
-         */
-
-
         /**********************************************************/
         /*==============End of Custom Behavior Logic==============*/
         /*********Do not change anything below this line***********/
