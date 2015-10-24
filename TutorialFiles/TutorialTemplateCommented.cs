@@ -5,16 +5,6 @@ using System.Linq;
 using SmartBot.Database;
 using SmartBot.Mulligan;
 using SmartBot.Plugins.API;
-/*
- * SmartMulligan open source project
- *                        by @Arthur
- * 
- * Mulligan is capable of making the 
- * best mulligan decisions by analyzing
- * your deck and opponents you are 
- * facing. 
- * 
- */
 
 namespace SmartBotUI.Mulligan
 {
