@@ -22,21 +22,20 @@ namespace SmartBotUI.Mulligan.Priority
 
     public class bMulliganProfile : MulliganProfile
     {
-        private static bool hasCoin;
+        private static bool _hasCoin;
         //=================ADJUSTABLE MINION CAP===================//
         public const int Allowed1Drops = 1;
-        public static readonly int Allowed2Drops = hasCoin ? 3 : 2;      //allow 3 on coin, 1 wihtout
-        public static readonly int Allowed3Drops = hasCoin ? 2 : 1;      //allows 2 on coin, 1 without
+        public static readonly int Allowed2Drops = _hasCoin ? 3 : 2;      //allow 3 on coin, 1 wihtout
+        public static readonly int Allowed3Drops = _hasCoin ? 2 : 1;      //allows 2 on coin, 1 without
         public const int Allowed4Drops = 1;
 
 
         //=========================================================//
-
+        public static readonly string MAIN_DIR = AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\";
 
 
 
         private Dictionary<string, bool> _whiteList; // CardName, KeepDouble
-        private static Dictionary<string, int> _priorityList;
         private readonly List<Card.Cards> _cardsToKeep;
         private const string Coin = "GAME_005";
         #region allplayablecards
@@ -537,23 +536,20 @@ namespace SmartBotUI.Mulligan.Priority
         /*Very experimental, and will not work until I feel comfortable with them*/
         public bool _arenaMode = true; //do not touch
         private static double _averageAggro = 3.5;
-        private const double swapChance = 20.00; //Minimum draw chance of a better card 
-
-
+        
         /*========================END OF DEFINITION=======================*/
 
         private static int _num2Drops;
         private static int _num3Drops;
-        private static bool has1Drop;
-        private static bool has2Drop;
-        private static bool has3Drop;
-        private static bool has4Drop;
+        private static bool _has1Drop;
+        private static bool _has2Drop;
+        private static bool _has3Drop;
+        private static bool _has4Drop;
 
 
         public bMulliganProfile()
         {
             _whiteList = new Dictionary<string, bool>();
-            _priorityList = new Dictionary<string, int>();
             _cardsToKeep = new List<Card.Cards>();
         }
 
@@ -565,17 +561,19 @@ namespace SmartBotUI.Mulligan.Priority
 
         public List<Card.Cards> HandleMulligan(List<Card.Cards> Choices, Card.CClass opponentClass, Card.CClass ownClass)
         {
-            hasCoin = Choices.Count > 3;
+            _hasCoin = Choices.Count > 3;
             var hand = HandleMinions(Choices, _whiteList, opponentClass, ownClass);
             _whiteList.AddOrUpdate(Coin, true);
 
             _whiteList.AddOrUpdate(HandleWeapons(Choices, hand), false); // only 1 weapon is allowed
             _whiteList.AddOrUpdate(HandleSpells(Choices, hand), false); // only 1 spell is allowed
 
+            CheckDirectory("MulliganArchives");
+
             using (
-                StreamWriter file =
-                    new StreamWriter(
-                        AppDomain.CurrentDomain.BaseDirectory + "\\MulliganProfiles\\MulliganChoicesArchive.txt", true))
+                var file =
+                    new System.IO.StreamWriter(
+                        MAIN_DIR + "MulliganArchives\\" + ownClass + "_" + Bot.CurrentMode() + ".txt", false))
             {
                 file.WriteLine("Your Card options against " + opponentClass + " as a " + ownClass + " were:");
                 foreach (var q in Choices)
@@ -712,7 +710,7 @@ namespace SmartBotUI.Mulligan.Priority
             return _cardsToKeep;
         }
 
-
+       
         /// <summary>
         /// 
         /// </summary>
@@ -800,7 +798,7 @@ namespace SmartBotUI.Mulligan.Priority
                         return c.ToString();
                     if (!spells.IsSecret && spells.Cost == 1 && !hand.Item1)
                         return c.ToString();
-                    if (!spells.IsSecret && spells.Cost == 2 && !hand.Item2 || hasCoin)
+                    if (!spells.IsSecret && spells.Cost == 2 && !hand.Item2 || _hasCoin)
                         return c.ToString();
                     if (!spells.IsSecret && spells.Cost == 3 && !hand.Item3)
                         return c.ToString();
@@ -815,7 +813,7 @@ namespace SmartBotUI.Mulligan.Priority
                 if (spells.Cost == 2 && spells.IsSecret && !hand.Item2 &&
                     !choices.Any(q => q.ToString().Equals("FP1_004"))) // toss away any secrets if I have mad scientist
                     return c.ToString();
-                if (spells.Cost == 3 && spells.IsSecret && !hand.Item3 && hasCoin &&
+                if (spells.Cost == 3 && spells.IsSecret && !hand.Item3 && _hasCoin &&
                     !choices.Any(q => q.ToString().Equals("FP1_004"))) //toss away any secret if I have mad scientist
                     return c.ToString();
             }
@@ -956,10 +954,10 @@ namespace SmartBotUI.Mulligan.Priority
             foreach (var c in sortedDict)
             {
                 if (c.Value < 1) continue;
-                if (c.Value <= 1 && hasCoin) continue;
-                whiteList.AddOrUpdate(c.Key, c.Value > 6 && hasCoin);
+                if (c.Value <= 1 && _hasCoin) continue;
+                whiteList.AddOrUpdate(c.Key, c.Value > 6 && _hasCoin);
                 num1Drops++;
-                has1Drop = true;
+                _has1Drop = true;
                 if (num1Drops >= Allowed1Drops) break;
             }
             var sortedDict2 = (myChoices2.OrderByDescending(entry => entry.Value))
@@ -969,7 +967,7 @@ namespace SmartBotUI.Mulligan.Priority
             foreach (var c in sortedDict2.Where(c => c.Value >= 2))
             {
                 num2Drops++;
-                has2Drop = true;
+                _has2Drop = true;
                 whiteList.AddOrUpdate(c.Key, c.Value > 4);
                 if (num2Drops == Allowed2Drops) break;
             }
@@ -982,7 +980,7 @@ namespace SmartBotUI.Mulligan.Priority
                 //if (num2Drops == 0) break;
                 if (c.Value < 1) continue;
                 num3Drops++;
-                has3Drop = true;
+                _has3Drop = true;
                 whiteList.AddOrUpdate(c.Key, false);
                 if (num3Drops == Allowed3Drops) break;
             }
@@ -990,7 +988,7 @@ namespace SmartBotUI.Mulligan.Priority
             GetFourDrops(choices, badMinions, whiteList, aggro);
 
 
-            return new Tuple<bool, bool, bool, bool>(has1Drop, has2Drop, has3Drop, has4Drop);
+            return new Tuple<bool, bool, bool, bool>(_has1Drop, _has2Drop, _has3Drop, _has4Drop);
         }
         private static int GetPriority(CardTemplate c, Card.CClass opponentClass, Card.CClass ownClass, int modifier = 0)
         {
@@ -1162,12 +1160,12 @@ namespace SmartBotUI.Mulligan.Priority
         private static void GetFourDrops(List<Card.Cards> choices, List<string> badMinions,
             IDictionary<string, bool> whiteList, bool aggro)
         {
-            if (has1Drop || has2Drop)
-                whiteList.AddOrUpdate(hasCoin ? PilotedShredder : "", false);
-            if (!has3Drop) return; //if no 3 drop, return
+            if (_has1Drop || _has2Drop)
+                whiteList.AddOrUpdate(_hasCoin ? PilotedShredder : "", false);
+            if (!_has3Drop) return; //if no 3 drop, return
             foreach (var c in choices)
             {
-                if (badMinions.Contains(c.ToString()) || !has3Drop || (choices.Count < 4)) continue;
+                if (badMinions.Contains(c.ToString()) || !_has3Drop || (choices.Count < 4)) continue;
 
                 if (CardTemplate.LoadFromId(c.ToString()).Cost == 4)
                 {
@@ -1175,7 +1173,7 @@ namespace SmartBotUI.Mulligan.Priority
                     if (minion.Type == Card.CType.MINION)
                     {
                         whiteList.AddOrUpdate(GetBestOne(choices, 4, badMinions), false);
-                        has4Drop = true;
+                        _has4Drop = true;
                     }
                 }
 
@@ -1211,5 +1209,15 @@ namespace SmartBotUI.Mulligan.Priority
                 return curBestCheck.Health > comparisonCheck.Health ? curBest : comparison; // handles minions
             return curBest;
         }
+        /*HELPER METHOD*/
+        private static void CheckDirectory(string subdir)
+        {
+            string myArchive = MAIN_DIR + "/" + subdir;
+            if (Directory.Exists(myArchive))
+                return;
+            Directory.CreateDirectory(myArchive);
+        }
+
+
     }
 }
