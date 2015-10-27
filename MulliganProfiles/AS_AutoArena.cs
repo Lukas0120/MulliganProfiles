@@ -573,7 +573,7 @@ namespace SmartBotUI.Mulligan.Priority
             using (
                 var file =
                     new System.IO.StreamWriter(
-                        MAIN_DIR + "MulliganArchives\\" + ownClass + "_" + Bot.CurrentMode() + ".txt", false))
+                        MAIN_DIR + "MulliganArchives\\" + ownClass + "_" + Bot.CurrentMode() + ".txt", true))
             {
                 file.WriteLine("Your Card options against " + opponentClass + " as a " + ownClass + " were:");
                 foreach (var q in Choices)
