@@ -5,9 +5,8 @@ using System.Text;
 using SmartBot.Mulligan;
 using SmartBot.Plugins.API;
 using SmartBotUI;
-using SmartBotUI.Settings;
 
-namespace SmartBotUI.Mulligan
+namespace SmartBotUI.Mulligan5
 {
     public static class Extension
     {
@@ -293,7 +292,7 @@ namespace SmartBotUI.Mulligan
 
             foreach (var s in from s in Choices let keptOneAlready = _cardsToKeep.Any(c => c.ToString() == s.ToString()) where _whiteList.ContainsKey(s.ToString()) where !keptOneAlready | _whiteList[s.ToString()] select s)
                 _cardsToKeep.Add(s);
-            
+
 
             return _cardsToKeep;
         }
